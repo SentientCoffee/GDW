@@ -1,14 +1,22 @@
 #define _WIN32_WINNT 0x0500
 #define SCREENWIDTH getmaxx()
+#include <gl/gl.h>
 #include <stdlib.h>
 #include <iostream>
 #include <windows.h>
 #include <string>
+
 using namespace std;
+
+enum gameState
+{
+	charSelect = 0,
+	game
+};
 
 enum characterList
 {
-	Felonious_Gru,
+	Felonious_Gru = 0,
 	El_Macho,
 	Stuart,
 	Kevin,
@@ -67,10 +75,6 @@ int main()
 	Sleep(5000);
 	system("CLS");
 
-	cout << "Characters:\n";
-	cout << "Felonious Gru\n";
-	cout << "El Macho\n";
-
 	while (Continue)
 	{
 		ReadConsoleInput(hIn, &InputRecord, 1, &NumRead);
@@ -117,7 +121,7 @@ int main()
 						cout << "Your character is El Macho.";
 						playerChar = 2;
 						charSelect = FALSE;
-						Sleep(2000);
+						Sleep(1000);
 						system("CLS");
 					}
 					else if (answer == "no")
@@ -128,7 +132,50 @@ int main()
 				}
 			}
 		}
+		cout << "Characters:\n"
+			<< "1. Felonious Gru\n"
+			<< "2. El Macho\n"
+			<< "3. Stuart the Minion\n"
+			<< "4. Kevin the Minion\n"
+			<< "5. Bob the Minion\n"
+			<< "6. Dr. Nefario\n";
 	}
 	Sleep(3000);
 	return 0;
 }
+
+typedef struct _GameStateInfo
+{
+	int gameState;
+	int windowWidth, windowHeight;
+	int screenWidth, screenHeight;
+	float ratioWidth, ratioHeight;
+}GameStateInfo;
+
+GameStateInfo stateInfo;
+
+void setScreenSize(int w, int h)
+{
+	stateInfo.screenWidth = w;
+	stateInfo.screenHeight = h;
+}
+
+void updateScreenRatio()
+{
+	stateInfo.ratioWidth = stateInfo.screenWidth / (float)stateInfo.windowWidth;
+	stateInfo.ratioHeight = stateInfo.screenHeight / (float)stateInfo.windowHeight;
+}
+
+void setNewWindowSize(int width, int height)
+{
+	stateInfo.windowWidth = width;
+	stateInfo.windowHeight = height;
+}
+
+typedef struct _SpriteSheetInfo
+{
+	unsigned int textureID;
+	float width, height;
+}SpriteSheetInfo;
+
+
