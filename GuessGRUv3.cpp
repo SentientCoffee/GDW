@@ -1,28 +1,43 @@
-#include <windows.h>
-#include <iostream>
-#include <random>
-#include <stdlib.h>
-#include <string>
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
+#include <iostream>
+//#include <libProcessHelper>
+#include <random>
+#include <stdlib.h>
+#include <string>
+#include <windows.h>
+
+#pragma comment(lib, "user32")
+
+// #define DEFAULT_HELPER_EXE "ConsoleLoggerHelper.exe"
 
 using namespace std;
+
+HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
+HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
 bool menu = TRUE;
 bool game = FALSE;
 bool charSelect = FALSE;
 bool Continue = TRUE;
 bool choice = FALSE;
+bool elMacho = FALSE;
 int turnNum;
-ifstream txtFile; // Supposed to read from text file
+ifstream txtFile; // Reads text from file
 string answer, line, filename, player1Name, player2Name;
 
-enum gameState //still have no idea how to use enums, so I don't know when we'll actually use these
+/*enum gameState //still have no idea how to use enums, so I don't know when we'll actually use these
 {
 	Menu = 0,
 	CharSelect,
 	Game
+};
+
+enum gameTypeList
+{
+	Single_player,
+	Multiplayer
 };
 
 enum characterList
@@ -40,21 +55,37 @@ enum characterList
 	Vector,
 	Kyle_the_dog,
 	El_Macho
-};
+};*/
 
 int randomNum() {
 	return (rand() % 13) + 1;
 }
 
+void drawFeloniousGru(); //Just in case
+void drawDruGru();
+void drawStuart();
+void drawKevin();
+void drawBob();
+void drawDrNefario();
+void drawMargoGru();
+void drawAgnesGru();
+void drawEdithGru();
+void drawLucyWilde();
+void drawVector();
+void drawKyleTheDog();
+void ElMacho();
 void charList();
 void centreString(string inputString, HANDLE hOut);
 void playerTurn(string charName, string compName, int);
 void characterSelect(string name, string filename, int);
 
+void fontSize(int size);
+string lowerCase(string input);
+
+
 int main()
 {
-	HANDLE hIn;
-	HANDLE hOut;
+	::SendMessage(::GetConsoleWindow(), WM_SYSKEYDOWN, VK_RETURN, 0x20000000);
 	COORD Title;
 	COORD KeyWhere;
 	COORD EndWhere;
@@ -66,19 +97,21 @@ int main()
 
 	srand((unsigned)time(0)); // Random number generator
 
-	hIn = GetStdHandle(STD_INPUT_HANDLE);
-	hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	
 	SetConsoleMode(hIn, ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT); // Code for mouse input, doesn't work with console window
 
 	Title.X = 55; // Coordinates for various pieces of text
 	Title.Y = 55;	
-	KeyWhere.X = 50;
-	KeyWhere.Y = 30;
+	KeyWhere.X = 0;
+	KeyWhere.Y = 6;
 	EndWhere.X = 15;
 	EndWhere.Y = 11;
 
 	//SetConsoleCursorPosition(hOut, Title);
+	fontSize(90);
+	SetConsoleCursorPosition(hOut, KeyWhere);
 	centreString("Guess Gru", hOut);
+	
 	Sleep(5000);
 	system("CLS");
 
@@ -86,20 +119,50 @@ int main()
 	{
 		if (menu)
 		{
+			KeyWhere.Y = 13;
 			SetConsoleCursorPosition(hOut, KeyWhere);
-			cout << "Single Player\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tTwo Player\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tDLC"; // It tried but it's definitely not perfect
-			cin.ignore();
-			getline(cin, select);
-			if (select == "single player" or "multiplayer")
+			
+			fontSize(30);
+			centreString("Single Player\n", hOut); // I tried but it's definitely not perfect
+			centreString("Two Player\n", hOut);
+			centreString("DLC?\n\n", hOut);
+			centreString("\b\b\b\b\b", hOut);
+
+			//cin.ignore();
+			cin >> select;
+			//getline(cin, select);
+			select = lowerCase(select);
+
+			if (select == "single player" || select == "two player")
 			{
 				menu = FALSE;
 				charSelect = TRUE;
 				system("CLS");
 			}
-			else if (select == "DLC")
+			else if (select == "dlc")
 			{
+				system("CLS");
 				cout << "DLC character: El Macho\n"
 					<< "Would you like to add El Macho to the game?";
+				
+				cin >> select;
+				select = lowerCase(select);
+
+				if(select == "yes")
+				{
+					elMacho = TRUE;
+					cout << "El Macho has been added to the game.";
+					Sleep(1000);
+					system("CLS");
+				}
+			}
+			else
+			{
+				cout << "Please put in a valid input.";
+				cin.clear();
+				cin.ignore(10000, '\n');
+				cin >> select;
+				continue;
 			}
 		}
 
@@ -122,33 +185,24 @@ int main()
 			}
 			while (charSelect)
 			{
+				if(InputRecord.Event.KeyEvent.uChar.AsciiChar == '`')
+				{
+					if(elMacho) {
+						player1Name = "El Macho";
+						filename = "El_Macho.txt";
+						player1Char = 0;
+						characterSelect(player1Name, filename, player1Char);
+						if (answer == "no")
+						{
+							break;
+						}
+					}
+				}
+
 				if (InputRecord.Event.KeyEvent.uChar.AsciiChar == '1')
 				{
-					//cout << "Felonious Gru" << endl
-					//	<< "Is this the character you'd like to use?" << endl;
-					//txtFile.open("GRU.txt");
-					//while (txtFile >> line)
-					//{
-					//	cout << line << endl; // This is supposed to print the text file, but I can't get it to work
-					//}
-					//txtFile.close();
-					//cin >> answer;
-					//if (answer == "yes")
-					//{
-					//	cout << "Your character is Felonious Gru.";
-					//	playerChar = 1;
-					//	charSelect = FALSE;
-					//	game = TRUE;
-					//	Sleep(1000);
-					//	system("CLS");
-					//}
-					//else if (answer == "no")
-					//{
-					//	system("CLS");
-					//	break;
-					//}
 					player1Name = "Felonious Gru";
-					filename = "GRU.txt";
+					filename = "GRU2.txt";
 					player1Char = 1;
 					characterSelect(player1Name, filename, player1Char);
 					if (answer == "no")
@@ -158,24 +212,6 @@ int main()
 				}
 				else if (InputRecord.Event.KeyEvent.uChar.AsciiChar == '2')
 				{
-					//cout << "Dru Gru" << endl
-					//	<< "Is this the character you'd like to use?" << endl;
-					//cin >> answer;
-					//choice = TRUE;
-					//if (answer == "yes")
-					//{
-					//	cout << "Your character is Dru Gru.";
-					//	playerChar = 2;
-					//	charSelect = FALSE;
-					//	game = TRUE;
-					//	Sleep(1000);
-					//	system("CLS");
-					//}
-					//else if (answer == "no")
-					//{
-					//	system("CLS");
-					//	break;
-					//}
 					player1Name = "Dru Gru";
 					filename = "Dru.txt";
 					player1Char = 2;
@@ -187,24 +223,6 @@ int main()
 				}
 				else if (InputRecord.Event.KeyEvent.uChar.AsciiChar == '3')
 				{
-					//cout << "Stuart the Minion" << endl
-					//	<< "Is this the character you'd like to use?" << endl;
-					//cin >> answer;
-					//choice = TRUE;
-					//if (answer == "yes")
-					//{
-					//	cout << "Your character is Stuart the Minion.";
-					//	playerChar = 3;
-					//	charSelect = FALSE;
-					//	game = TRUE;
-					//	Sleep(1000);
-					//	system("CLS");
-					//}
-					//else if (answer == "no")
-					//{
-					//	system("CLS");
-					//	break;
-					//}
 					player1Name = "Stuart the Minion";
 					filename = "Stuart.txt";
 					player1Char = 3;
@@ -216,24 +234,6 @@ int main()
 				}
 				else if (InputRecord.Event.KeyEvent.uChar.AsciiChar == '4')
 				{
-					//cout << "Kevin the Minion" << endl
-					//	<< "Is this the character you'd like to use?" << endl;
-					//cin >> answer;
-					//choice = TRUE;
-					//if (answer == "yes")
-					//{
-					//	cout << "Your character is Kevin the Minion.";
-					//	playerChar = 4;
-					//	charSelect = FALSE;
-					//	game = TRUE;
-					//	Sleep(1000);
-					//	system("CLS");
-					//}
-					//else if (answer == "no")
-					//{
-					//	system("CLS");
-					//	break;
-					//}
 					player1Name = "Kevin the Minion";
 					filename = "Kevin.txt";
 					player1Char = 4;
@@ -245,24 +245,6 @@ int main()
 				}
 				else if (InputRecord.Event.KeyEvent.uChar.AsciiChar == '5')
 				{
-					//cout << "Bob the Minion" << endl
-					//	<< "Is this the character you'd like to use?" << endl;
-					//cin >> answer;
-					//choice = TRUE;
-					//if (answer == "yes")
-					//{
-					//	cout << "Your character is Bob the Minion.";
-					//	playerChar = 5;
-					//	charSelect = FALSE;
-					//	game = TRUE;
-					//	Sleep(1000);
-					//	system("CLS");
-					//}
-					//else if (answer == "no")
-					//{
-					//	system("CLS");
-					//	break;
-					//}
 					player1Name = "Bob the Minion";
 					filename = "Bob.txt";
 					player1Char = 5;
@@ -274,24 +256,6 @@ int main()
 				}
 				else if (InputRecord.Event.KeyEvent.uChar.AsciiChar == '6')
 				{
-					//cout << "Dr. Nefario" << endl
-					//	<< "Is this the character you'd like to use?" << endl;
-					//cin >> answer;
-					//choice = TRUE;
-					//if (answer == "yes")
-					//{
-					//	cout << "Your character is Dr. Nefario.";
-					//	playerChar = 6;
-					//	charSelect = FALSE;
-					//	game = TRUE;
-					//	Sleep(1000);
-					//	system("CLS");
-					//}
-					//else if (answer == "no")
-					//{
-					//	system("CLS");
-					//	break;
-					//}
 					player1Name = "Dr. Nefario";
 					filename = "Dr._Nefario.txt";
 					player1Char = 6;
@@ -303,24 +267,6 @@ int main()
 				}
 				else if (InputRecord.Event.KeyEvent.uChar.AsciiChar == '7')
 				{
-					//cout << "Margo Gru" << endl
-					//	<< "Is this the character you'd like to use?" << endl;
-					//cin >> answer;
-					//choice = TRUE;
-					//if (answer == "yes")
-					//{
-					//	cout << "Your character is Margo Gru.";
-					//	playerChar = 7;
-					//	charSelect = FALSE;
-					//	game = TRUE;
-					//	Sleep(1000);
-					//	system("CLS");
-					//}
-					//else if (answer == "no")
-					//{
-					//	system("CLS");
-					//	break;
-					//}
 					player1Name = "Margo Gru";
 					filename = "Margo.txt";
 					player1Char = 7;
@@ -332,24 +278,6 @@ int main()
 				}
 				else if (InputRecord.Event.KeyEvent.uChar.AsciiChar == '8')
 				{
-					//cout << "Agnes Gru" << endl
-					//	<< "Is this the character you'd like to use?" << endl;
-					//cin >> answer;
-					//choice = TRUE;
-					//if (answer == "yes")
-					//{
-					//	cout << "Your character is Agnes Gru.";
-					//	playerChar = 8;
-					//	charSelect = FALSE;
-					//	game = TRUE;
-					//	Sleep(1000);
-					//	system("CLS");
-					//}
-					//else if (answer == "no")
-					//{
-					//	system("CLS");
-					//	break;
-					//}
 					player1Name = "Agnes Gru";
 					filename = "Agnes.txt";
 					player1Char = 8;
@@ -361,24 +289,6 @@ int main()
 				}
 				else if (InputRecord.Event.KeyEvent.uChar.AsciiChar == '9')
 				{
-					//cout << "Edith Gru" << endl
-					//	<< "Is this the character you'd like to use?" << endl;
-					//cin >> answer;
-					//choice = TRUE;
-					//if (answer == "yes")
-					//{
-					//	cout << "Your character is Edith Gru.";
-					//	playerChar = 9;
-					//	charSelect = FALSE;
-					//	game = TRUE;
-					//	Sleep(1000);
-					//	system("CLS");
-					//}
-					//else if (answer == "no")
-					//{
-					//	system("CLS");
-					//	break;
-					//}
 					player1Name = "Edith Gru";
 					filename = "Edith.txt";
 					player1Char = 9;
@@ -390,24 +300,6 @@ int main()
 				}
 				else if (InputRecord.Event.KeyEvent.uChar.AsciiChar == '0')
 				{
-					//cout << "Lucy Wilde" << endl
-					//	<< "Is this the character you'd like to use?" << endl;
-					//cin >> answer;
-					//choice = TRUE;
-					//if (answer == "yes")
-					//{
-					//	cout << "Your character is Lucy Wilde.";
-					//	playerChar = 10;
-					//	charSelect = FALSE;
-					//	game = TRUE;
-					//	Sleep(1000);
-					//	system("CLS");
-					//}
-					//else if (answer == "no")
-					//{
-					//	system("CLS");
-					//	break;
-					//}
 					player1Name = "Lucy Wilde";
 					filename = "Lucy.txt";
 					player1Char = 10;
@@ -419,24 +311,6 @@ int main()
 				}
 				else if (InputRecord.Event.KeyEvent.uChar.AsciiChar == '-')
 				{
-					//cout << "Vector" << endl
-					//	<< "Is this the character you'd like to use?" << endl;
-					//cin >> answer;
-					//choice = TRUE;
-					//if (answer == "yes")
-					//{
-					//	cout << "Your character is Vector.";
-					//	playerChar = 11;
-					//	charSelect = FALSE;
-					//	game = TRUE;
-					//	Sleep(1000);
-					//	system("CLS");
-					//}
-					//else if (answer == "no")
-					//{
-					//	system("CLS");
-					//	break;
-					//}
 					player1Name = "Vector";
 					filename = "Vector.txt";
 					player1Char = 11;
@@ -448,24 +322,6 @@ int main()
 				}
 				else if (InputRecord.Event.KeyEvent.uChar.AsciiChar == '=')
 				{
-					//cout << "Kyle the dog" << endl
-					//	<< "Is this the character you'd like to use?" << endl;
-					//cin >> answer;
-					//choice = TRUE;
-					//if (answer == "yes")
-					//{
-					//	cout << "Your character is Kyle the dog.";
-					//	playerChar = 12;
-					//	charSelect = FALSE;
-					//	game = TRUE;
-					//	Sleep(1000);
-					//	system("CLS");
-					//}
-					//else if (answer == "no")
-					//{
-					//	system("CLS");
-					//	break;
-					//}
 					player1Name = "Kyle the dog";
 					filename = "Kyle.txt";
 					player1Char = 12;
@@ -495,8 +351,14 @@ int main()
 
 void charList()
 {
-	cout << "Characters:\n"
-		<< "1. Felonious Gru\n"
+
+	cout << "Characters:\n";
+
+	if(elMacho) {
+		cout << "`. El Macho\n";
+	}
+
+	cout << "1. Felonious Gru\n"
 		<< "2. Dru Gru\n"
 		<< "3. Stuart the Minion\n"
 		<< "4. Kevin the Minion\n"
@@ -512,22 +374,34 @@ void charList()
 
 void characterSelect(string name, string filename, int playerNum)
 {
-	cout << name << endl
-		<< "Is this the character you'd like to use?" << endl;
-	txtFile.open(filename);
-	while (txtFile >> line)
+	fontSize(60);
+	cout << name << endl;
+	fontSize(30);
+
+	txtFile.open(filename); // opens file to read
+	fontSize(4);
+	while (txtFile >> line) // reads file
 	{
-		cout << line << endl; // This is supposed to print the text file, but I can't get it to work. Anyone know how to use files?
+		cout << line << endl; // prints text file
 	}
 	txtFile.close();
+	//if (name == "Felonious Gru")
+	//{
+	//	drawFeloniousGru();
+	//}
+
+	cout << "Is this the character you'd like to use?" << endl;
 	cin >> answer;
+	answer = lowerCase(answer);
+
 	if (answer == "yes")
 	{
+		system("CLS");
+		fontSize(30);
 		cout << "Your character is " << name;
 		charSelect = FALSE;
 		game = TRUE;
 		Sleep(1000);
-		system("CLS");
 	}
 	else if (answer == "no")
 	{
@@ -542,7 +416,7 @@ void playerTurn(string charName, string player2Name, int turnNum)
 	string question;
 	cout << "It is now Player " << turnNum << "'s turn.\n"
 		<< "Please type what you'd like to ask. Acceptable Commands: \n" // We can probably put info for each character in the text file, like the different colours if we can't change font colour
-		<< "nose, eye, hair, size, (can only guess this once) name\n";
+		<< "nose, eye, hair, size, (can only guess this once) name\n"; //
 	cin >> question;
 	system("CLS");
 	if (question == "nose")
@@ -635,4 +509,90 @@ void centreString(string inputString, HANDLE hOut) // Hopefully will center the 
 	}
 
 	cout << inputString;
+}
+
+//These are in case we can't get the files to work properly since they mess up at the spaces
+void drawFeloniousGru()
+{
+	
+}
+
+void drawDruGru()
+{
+
+}
+
+void drawStuart()
+{
+
+}
+
+void drawKevin()
+{
+
+}
+
+void drawBob()
+{
+
+}
+
+void drawDrNefario()
+{
+
+}
+
+void drawMargoGru()
+{
+
+}
+
+void drawAgnesGru()
+{
+
+}
+
+void drawEdithGru()
+{
+
+}
+
+void drawLucyWilde()
+{
+
+}
+
+void drawVector()
+{
+
+}
+
+void drawKyleTheDog()
+{
+
+}
+
+void drawElMacho()
+{
+
+}
+
+void fontSize(int size) {
+	PCONSOLE_FONT_INFOEX lpConsoleCurrentFontEx = new CONSOLE_FONT_INFOEX();
+	lpConsoleCurrentFontEx->cbSize = sizeof(CONSOLE_FONT_INFOEX);
+
+	GetCurrentConsoleFontEx(hOut, FALSE, lpConsoleCurrentFontEx);
+	lpConsoleCurrentFontEx->dwFontSize.X = size;
+	lpConsoleCurrentFontEx->dwFontSize.Y = size;
+	SetCurrentConsoleFontEx(hOut, FALSE, lpConsoleCurrentFontEx);
+}
+
+string lowerCase(string input) {
+	// Loop through the entire inputted string
+	for (int i = 0; i < input.length(); i++) {
+		input[i] = tolower(input[i]);    // Change the character to lowercase
+	}
+
+	// Return the lowercase input
+	return input;
 }
