@@ -1,5 +1,4 @@
 #include "Characters.h"
-#include "LowerCase.h"
 
 std::string name, input;
 using std::endl;
@@ -8,6 +7,7 @@ using std::cout;
 void drawCharacter(int character) {
 	switch (character) {
 	case 0:
+		fontSize(10);
 		std::cout << "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMNmhyooo++yhmMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM" << endl
 			<< "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMNdhs+osyyhhhhyo/:/smMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM" << endl
 			<< "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMdssso+++++////+oyhhs:-+NMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM" << endl
@@ -64,6 +64,7 @@ void drawCharacter(int character) {
 
 		break;
 	case 1:
+		fontSize(10);
 		std::cout << "		                                                                                                                    ` ````````                                                                                   \n"
 			<< "                                                                                                                       ``./+oossso+++/:.`  `                                                                            \n"
 			<< "                                                                                                                 ```.:+oydmmmNmmmNNNNmmdyo/.`                                                                           \n"
@@ -117,6 +118,7 @@ void drawCharacter(int character) {
 			<< "mmmmmmmmmmmNNNNNNNNNNNNNNNNNNNNNNNMMMMNNNNNNNNNNNNNNNmo/+/ohdmmmmmmmmy+o+++oosoooooooydmmmmmmmmhooooooossoooo++osyyyyyyyhyosoo+osoooooooooydmmmmmmNmmdysooooosooo+osssoshmmmmmmmmmmdssyyyyysssydmmdyssyysydNNNNNNNNNNNNN\n";
 		break;
 	case 2:
+		fontSize(7);
 		std::cout << "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMmmdhyyyyysssssyyhMMMMMMMMMMMMMMMMMMmyyssssssssssssssyymMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM" << endl
 			<< "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMmhhhhyso++////::::::/+hhhhyyhMMMMmhhhhhhs++:::::::--::::://shhhhNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM" << endl
 			<< "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMNddddo::::::///::::::::::::::----/dddms::::::///:::::::-----:::::::::hdddmMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM" << endl
@@ -189,6 +191,7 @@ void drawCharacter(int character) {
 			<< ".........---------------.........----------:---..-::::-----............--..............------------.........```````````````````````````````````````````````````````````````````````````````````````````````````````````````.-...`````....................." << endl;
 		break;
 	case 3:
+		fontSize(10);
 		std::cout << "                                                     ``.-:://+++//::-..```                                                                                                       " << endl
 			<< "                                            `.-:/oyhhdmmddmmmmmmddhyysoo+:-.`              `````                                                                                       " << endl
 			<< "                                        `.-+sssooo+ooo+////+shddhdmNNmmmmmdhyo:.`   `-:+osyyyyyysso+/:-.`                                                                              " << endl
@@ -258,6 +261,7 @@ void drawCharacter(int character) {
 			<< "    `..--------------::::::::::::::://:://++/////::--::::::--:------------------------------------:---:::::::::::::::::::///++osyhysshhhyyo++++:.`:+sysooo+++++/:.`                    " << endl;
 		break;
 	case 4:
+		fontSize(10);
 		std::cout << "                                                        `.`                     " << endl
 			<< "                                      `.`              ..`                            " << endl
 			<< "                                        .:`           -.    ``                        " << endl
@@ -333,6 +337,7 @@ void drawCharacter(int character) {
 
 		break;
 	case 5:
+		fontSize(10);
 		std::cout << "         `-:-.                                                                                                                                                     " << endl
 			<< "        `yyyyyo.                                                        `````````````````                                                                                " << endl
 			<< "        -dysyhdy-       `-::-                                   ```.....------------------.....```                                                                       " << endl
@@ -377,6 +382,7 @@ void drawCharacter(int character) {
 
 		break;
 	case 6:
+		fontSize(7);
 		std::cout << "                                                                               `            ``                                                                                                                    " << endl
 			<< "                                                                         `````````````.``   ``                                                                                                                          " << endl
 			<< "                                                                     ````....``..........`.``                                                                                                                           " << endl
@@ -479,6 +485,7 @@ void drawCharacter(int character) {
 
 		break;
 	case 7:
+		fontSize(8);
 		std::cout << "                                                                                    `````````````                                                                                     " << endl
 			<< "                                                                        ```.-::::://++ossyssssso+/:.````                                                                                    " << endl
 			<< "                                                             ```.--:://+osyhhhdhhhhddhhhhhhhhhhhhhyyys+/:-.``                                                                               " << endl
@@ -588,6 +595,7 @@ void drawCharacter(int character) {
 
 		break;
 	case 8:
+		fontSize(10);
 		std::cout << "                                                         `      ..      ` `                   " << endl
 			<< "                                                         .``.```:. ````.`.`````                     " << endl
 			<< "                                                      ``.-`./:-++..-.---/----````                   " << endl
@@ -674,6 +682,7 @@ void drawCharacter(int character) {
 
 		break;
 	case 9:
+		fontSize(7);
 		std::cout << "                                                                                                           ``````````.`````````````                                                                " << endl
 			<< "                                                                                                      ````........------......----..``                                                             " << endl
 			<< "                                                                                               ``````.......----------...-----:::::--.`                                                            " << endl
@@ -774,6 +783,7 @@ void drawCharacter(int character) {
 
 		break;
 	case 10:
+		fontSize(7);
 		std:: cout << "                                            ``....``   ` `-++ooossoosssssooooyhs++oo++ooo+++++++//:-.`     " << endl
 			<< "                                        `.:+ssyyyyso/-..``-/ooooossoossysssosyhyo+os++osooooooo+o++o++:`        " << endl
 			<< "                                       ./+osyyyysyys+/++/++++oosoosoosyyyyyssyhyoossooossoooossosooooo+/.`     " << endl
@@ -894,7 +904,8 @@ void drawCharacter(int character) {
 
 		break;
 	case 11:
-            std::cout << "..............................................................-.............---::/++/+++++/:----------.......................................................... " << endl
+		fontSize(10);
+        std::cout << "..............................................................-.............---::/++/+++++/:----------.......................................................... " << endl
 			<< "....................................................-:/+ooosyyyyssyysoo++++osssssssso++//+osyyyssoo+//:----..................................................... " << endl
 			<< "..............................................--:/+syddddmmmmdddddddddddddddhhhhhyysso++oo++oyhhddddhhhyso/:-----............................................... " << endl
 			<< "...........................................-:+syhhddddmddmmddddddddddddddhhyssysyysooo+osyyyyyyyhddddmmmmmddyo/------........................................... " << endl
@@ -972,6 +983,7 @@ void drawCharacter(int character) {
 
 		break;
 	case 12:
+		fontSize(7);
 		std::cout << "																														   `.                                            `" << endl
 			<< "																											`  `` `        -`" << endl
 			<< "																						  ``               `.   -::``  `  :-  ``                                      `" << endl

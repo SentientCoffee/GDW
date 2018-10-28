@@ -1,10 +1,8 @@
 #include "GuessGru.h"
-
 using namespace std;
-using std::cout;
 
-HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
-HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+const HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
+const HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
 COORD bufferSize;
 COORD titleMsg;
@@ -14,18 +12,29 @@ COORD cursorPos;
 INPUT_RECORD inputRecord;
 DWORD numRead;
 
-static bool endGame = false, elMacho = false;
-int numPlayers, playerTurn;
-int player1Char, player2Char, guess;
+const int nameIndex = 0,
+noseIndex = 1,
+hairIndex = 2,
+ageIndex = 3,
+sizeIndex = 4,
+genderIndex = 5;
+
+static bool endGame = false, elMacho = false, player1Turn = false;
+int numPlayers, player1Char, player2Char, guess;
+
 string userInput, charSelect, charName, question, nameGuess, restart;
 
+const array<array<string, 13>, 6> characters = {{
+	{ "El Macho", "Felonious Gru", "Dru Gru", "Stuart the Minion", "Kevin the Minion", "Bob the Minion", "Dr. Nefario", "Margo Gru", "Agnes Gru", "Edith Gru", "Lucy Wilde", "Vector", "Kyle the Dog" },
+	{ "average",  "pointy",        "pointy",  "none",              "none",             "none",           "pointy",      "average",   "average",   "average",   "average",    "pointy", "none" },
+	{ "short",    "none",          "long",    "short",             "short",            "none",           "short",       "long",      "long",      "short",     "long",       "short",  "short" },
+	{ "middle",   "middle",        "middle",  "old",               "old",              "old",            "old",         "young",     "young",     "young",     "middle",     "middle", "young" },
+	{ "big",      "medium",        "medium",  "small",             "medium",           "small",          "medium",      "medium",    "small",     "small",     "medium",     "medium", "small" },
+	{ "male",     "male",          "male",    "male",              "male",             "male",           "male",        "female",    "female",    "female",    "female",     "male",   "male" }
+}};
 
-string characters[] = { "El Macho", "Gru", "Dru", "Stuart", "Kevin", "Bob", "Nefario", "Margo", "Agnes", "Edith", "Lucy", "Vector", "Kyle" };
-string Nose[] = { "average", "pointy", "pointy", "no nose", "no nose", "no nose", "pointy", "average", "average", "average", "average", "pointy", "no nose" };
-string Hair[] = {  "short", "none", "long", "short", "short", "none", "short", "long", "long", "short", "long", "short", "short" };
-string Age[] = {  "middle", "middle", "middle", "old", "old", "old", "old", "young", "young", "young", "middle", "middle", "young" };
-string CharSize[] = { "big", "medium", "medium", "small", "medium", "small", "medium", "medium", "small", "small", "medium", "medium", "small" };
-string Gender[] = {  "male", "male", "male", "male", "male", "male", "male", "female", "female", "female", "female", "male", "male" };
+static array<bool, 13> player1arr = { true, true, true, true, true, true, true, true, true, true, true, true, true };
+static array<bool, 13> player2arr = { true, true, true, true, true, true, true, true, true, true, true, true, true };
 
 
 bool female = false, male = false;
@@ -49,6 +58,7 @@ int main() {
 
 	SetConsoleTitle("Guess Gru");
 	SetConsoleScreenBufferSize(hOut, bufferSize);
+	SetConsoleTextAttribute(hOut, 22);
 
 	::SendMessage(::GetConsoleWindow(), WM_SYSKEYDOWN, VK_RETURN, 0x20000000);
 	srand((unsigned)time(0));
@@ -60,36 +70,40 @@ int main() {
 
 	playMusic();
 
-	Sleep(5000);
+	Sleep(5650);
 	system("CLS");
 
 begin:
 	while (!endGame) {
-		fontSize(30);
 	menu:
+		fontSize(50);
+		SetConsoleTextAttribute(hOut, 22);
+		
 		cursorPos.Y = 0;
 		SetConsoleCursorPosition(hOut, cursorPos);
 		centreString("Guess Gru\n");
-		centreString("===================================================================================================");
+		centreString("=================================================================");
 
-		cursorPos.Y = 35;
+		cursorPos.Y = 21;
 		SetConsoleCursorPosition(hOut, cursorPos);
+		SetConsoleTextAttribute(hOut, 25);
 		centreString("DLC?\n\n");
+		SetConsoleTextAttribute(hOut, 22);
 
 		userInput = "";
-		cursorPos.Y = 13;
+		cursorPos.Y = 8;
 		SetConsoleCursorPosition(hOut, cursorPos);
 
 		centreString("Options: (please type your choice)\n");
 		centreString("- Single Player\n");
 		centreString("- Two Player\n");
 		centreString("Type \"Exit\" to quit the game");
-		
-		cursorPos.Y = 17;
-		SetConsoleCursorPosition(hOut, cursorPos);
-		centreString("\b\b\b\b");
 
-		getline(cin, userInput);
+		cursorPos.Y = 13;
+		SetConsoleCursorPosition(hOut, cursorPos);
+		centreString("\b\b\b");
+
+		getline(cin, userInput, '\n');
 		userInput = lowerCase(userInput);
 
 		while (userInput != "single player" && userInput != "two player" && userInput != "dlc" && userInput != "exit") {
@@ -124,7 +138,7 @@ begin:
 					elMacho = true;
 					centreString("El Macho has been added to the game.\n");
 					centreString("$19.99 has been deducted from your wallet.");
-					
+
 					Sleep(1000);
 					system("CLS");
 					goto menu;
@@ -132,7 +146,7 @@ begin:
 				else {
 					elMacho = false;
 					centreString("El Macho has not been added.");
-					
+
 					Sleep(1000);
 					system("CLS");
 					goto menu;
@@ -143,13 +157,13 @@ begin:
 
 				SetConsoleCursorPosition(hOut, cursorPos);
 				centreString("El Macho has already been added to the game.\n");
-				
+
 				Sleep(1000);
 				system("CLS");
 				goto menu;
 			}
 		}
-		else if(userInput == "exit") {
+		else if (userInput == "exit") {
 			system("CLS");
 			endGame = true;
 			goto begin;
@@ -157,14 +171,22 @@ begin:
 
 	characterSelect:
 		system("CLS");
+		fontSize(30);
 		player1Char = 100;
-		
+
+		for (int i = 0; i < player1arr.size(); i++) {
+			player1arr[i] = true;
+		}
+		for (int i = 0; i < player2arr.size(); i++) {
+			player2arr[i] = true;
+		}
+
 		cursorPos.X = 0;
 		cursorPos.Y = 18;
 
 		cout << "Characters:\n"
 			<< "(Please select your character using the number row)\n";
-		
+
 
 		if (elMacho) {
 			cout << "[`] El Macho\n";
@@ -190,68 +212,55 @@ begin:
 		switch (inputRecord.EventType) {
 		case KEY_EVENT:
 			SetConsoleCursorPosition(hOut, cursorPos);
-			
+
 			switch (inputRecord.Event.KeyEvent.uChar.AsciiChar) {
 			case 'm':
 				endGame = true;
 				system("CLS");
 				goto menu;
 				break;
-				
+
 
 			case '`':
 				if (elMacho) {
 					player1Char = 0;
-					average = true, Short = true, middle = true, big = true, male = true;
 				}
 				break;
 			case '1':
 				player1Char = 1;
-				pointy = true, none = true, middle = true, medium = true, male = true;
 				break;
 			case '2':
 				player1Char = 2;
-				pointy = true, Long = true, middle = true, medium = true, male = true;
 				break;
 			case '3':
 				player1Char = 3;
-				noNose = true, Short = true, old = true, medium = true, male = true;
 				break;
 			case '4':
 				player1Char = 4;
-				noNose = true, Short = true, old = true, Small = true, male = true;
 				break;
 			case '5':
 				player1Char = 5;
-				noNose = true, none = true, old = true, Small = true, male = true;
 				break;
 			case '6':
 				player1Char = 6;
-				pointy = true, Short = true, old = true, medium = true, male = true;
 				break;
 			case '7':
 				player1Char = 7;
-				average = true, Long = true, young = true, medium = true, female = true;
 				break;
 			case '8':
 				player1Char = 8;
-				average = true, Long = true, young = true, Small = true, female = true;
 				break;
 			case '9':
 				player1Char = 9;
-				average = true, Short = true, young = true, Small = true, female = true;
 				break;
 			case '0':
 				player1Char = 10;
-				average = true, Long = true, middle = true, medium = true, female = true;
 				break;
 			case '-':
 				player1Char = 11;
-				pointy = true, Short = true, middle = true, medium = true, male = true;
 				break;
 			case '=':
 				player1Char = 12;
-				noNose = true, Short = true, young = true, Small = true, male = true;
 				break;
 			default:
 				break;
@@ -261,7 +270,7 @@ begin:
 				goto characterSelect;
 			}
 
-			charName = characters[player1Char];
+			charName = characters[nameIndex][player1Char];
 
 			cout << charName << "\n";
 			cout << "Is this the character you'd like to choose? ";
@@ -291,9 +300,13 @@ begin:
 			userInput = lowerCase(userInput);
 
 			if (userInput == "yes") {
+				system("CLS");
 				fontSize(10);
 				drawCharacter(player1Char);
-				Sleep(2000);
+				Sleep(4000);
+
+				system("CLS");
+				fontSize(30);
 				system("pause");
 			}
 			else if (userInput == "no") {
@@ -305,30 +318,76 @@ begin:
 				system("CLS");
 			}
 
-			goto game;
+			goto turn;
 		}
 
-	game:
+	turn:
 		system("CLS");
-		fontSize(30);
-		playerTurn = 1;
+		player1Turn = !player1Turn;
+		goto game;
 
-		cout << "It is now Player " << playerTurn << "'s turn.\n"
-			<< "Please type what you'd like to ask. Acceptable Commands: \n"
+	game:
+		fontSize(30);
+		cout << "Available characters:\n\n";
+		cout << setw(25) << left << "NAME";
+		cout << setw(15) << left << "NOSE"
+			<< setw(15) << left << "HAIR"
+			<< setw(15) << left << "SIZE"
+			<< setw(15) << left << "GENDER"
+			<< setw(15) << left << "AGE" << endl;
+
+		cout << setw(25) << left << "--------------------";
+		cout << setw(15) << left << "---------"
+			<< setw(15) << left << "---------"
+			<< setw(15) << left << "---------"
+			<< setw(15) << left << "---------"
+			<< setw(15) << left << "---------" << endl;
+
+		for (unsigned int i = 0; i < characters[0].size(); i++) {
+			if (i == 0) {
+				if (elMacho) {
+					if (player1arr[0]) {
+						cout << setw(25) << left << characters[nameIndex][i];
+						cout << setw(15) << left << characters[noseIndex][i]
+							<< setw(15) << left << characters[hairIndex][i]
+							<< setw(15) << left << characters[sizeIndex][i]
+							<< setw(15) << left << characters[genderIndex][i]
+							<< setw(15) << left << characters[ageIndex][i] << "\n";
+					}
+				}
+			}
+			else if (player1arr[i]) {
+				cout << setw(25) << left << characters[nameIndex][i];
+				cout << setw(15) << left << characters[noseIndex][i]
+					<< setw(15) << left << characters[hairIndex][i]
+					<< setw(15) << left << characters[sizeIndex][i]
+					<< setw(15) << left << characters[genderIndex][i]
+					<< setw(15) << left << characters[ageIndex][i] << "\n";
+			}
+		}
+
+		cout << endl;
+		cout << "====================================================================================================\n\n";
+
+
+		if(player1Turn)	cout << "It is now Player 1's turn.\n\n";
+		else cout << "It is now Player 2's turn.\n\n";
+	
+		cout << "Please type what you'd like to ask.\nAcceptable Commands:\n"
 			<< "- Nose\n"
-			<< "- Hair\n" 
+			<< "- Hair\n"
 			<< "- Size\n"
 			<< "- Gender\n"
 			<< "- Age\n"
 			<< "- Name (if you guess this wrong you lose)\n";
-		
+
 		cin >> question;
 		question = lowerCase(question);
 		system("CLS");
 
 		if (question == "nose") {
 			cout << "Acceptable Commands:\n"
-				<< "- No nose\n"
+				<< "- None\n"
 				<< "- Average\n"
 				<< "- Pointy\n";
 
@@ -341,7 +400,7 @@ begin:
 				<< "- Long\n"
 				<< "- Short\n"
 				<< "- None\n";
-			
+
 			cin >> question;
 			question = lowerCase(question);
 			goto hair;
@@ -376,11 +435,7 @@ begin:
 			goto age;
 		}
 		else if (question == "name") {
-			cursorPos.Y = 3;
-
 			cout << "Please select the character's name.\n";
-			SetConsoleCursorPosition(hOut, cursorPos);
-			cin >> nameGuess;
 			goto name;
 		}
 		else {
@@ -391,92 +446,324 @@ begin:
 		}
 
 	nose:
-		cout << "You guessed that the other player's character has a(n) " << question << " nose.\n";
 		if (lowerCase(question) == "average") {
-			if(Nose[player1Char] == "average") cout << "The answer is yes.\n";
-			else cout << "The answer is no.\n";
+			cout << "You guessed that the other player's character has an " << question << " nose.\n";
+			if (characters[noseIndex][player1Char] == "average") {
+				cout << "The answer is yes.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[noseIndex][i] != "average") {
+						player1arr[i] = false;
+					}
+				}
+			}
+			else {
+				cout << "The answer is no.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[noseIndex][i] == "average") {
+						player1arr[i] = false;
+					}
+				}
+			}
 		}
 		else if (lowerCase(question) == "pointy") {
-			if (Nose[player1Char] == "pointy") cout << "The answer is yes.\n";
-			else cout << "The answer is no.\n";
+			cout << "You guessed that the other player's character has a " << question << " nose.\n";
+			if (characters[noseIndex][player1Char] == "pointy") {
+				cout << "The answer is yes.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[noseIndex][i] != "pointy") {
+						player1arr[i] = false;
+					}
+				}
+			}
+			else {
+				cout << "The answer is no.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[noseIndex][i] == "pointy") {
+						player1arr[i] = false;
+					}
+				}
+			}
 		}
-		else if (lowerCase(question) == "nonose") {
-			if(Nose[player1Char] == "nonose") cout << "The answer is yes.\n";
-			else cout << "The answer is no.\n";
+		else if (lowerCase(question) == "none") {
+			cout << "You guessed that the other player's character has no nose.\n";
+			if (characters[noseIndex][player1Char] == "none") {
+				cout << "The answer is yes.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[noseIndex][i] != "none") {
+						player1arr[i] = false;
+					}
+				}
+			}
+			else {
+				cout << "The answer is no.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[noseIndex][i] == "none") {
+						player1arr[i] = false;
+					}
+				}
+			}
 		}
 
-		Sleep(1000);
-		goto game;
-	
+		Sleep(1500);
+		goto turn;
+
 	hair:
 		cout << "You guessed that the other player's character has " << question << " hair.\n";
 		if (lowerCase(question) == "long") {
-			if(Hair[player1Char] == "long") cout << "The answer is yes.\n";
-			else cout << "The answer is no.\n";
+			if (characters[hairIndex][player1Char] == "long") {
+				cout << "The answer is yes.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[hairIndex][i] != "long") {
+						player1arr[i] = false;
+					}
+				}
+			}
+			else {
+				cout << "The answer is no.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[hairIndex][i] == "long") {
+						player1arr[i] = false;
+					}
+				}
+			}
 		}
 		else if (lowerCase(question) == "short") {
-			if(Hair[player1Char] == "short") cout << "The answer is yes.\n";
-			else cout << "The answer is no.\n";
+			if (characters[hairIndex][player1Char] == "short") {
+				cout << "The answer is yes.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[hairIndex][i] != "short") {
+						player1arr[i] = false;
+					}
+				}
+			}
+			else {
+				cout << "The answer is no.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[hairIndex][i] == "short") {
+						player1arr[i] = false;
+					}
+				}
+			}
 		}
 		else if (lowerCase(question) == "none") {
-			if(Hair[player1Char] == "none") cout << "The answer is yes.\n";
-			else cout << "The answer is no.\n";
+			if (characters[hairIndex][player1Char] == "none") {
+				cout << "The answer is yes.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[hairIndex][i] != "none") {
+						player1arr[i] = false;
+					}
+				}
+			}
+			else {
+				cout << "The answer is no.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[hairIndex][i] == "none") {
+						player1arr[i] = false;
+					}
+				}
+			}
 		}
-		
-		Sleep(1000);
-		goto game;
+
+		Sleep(1500);
+		goto turn;
 
 	size:
 		cout << "You guessed that the other player's character is " << question << ".\n";
 		if (lowerCase(question) == "small") {
-			if (CharSize[player1Char] == "small") cout << "The answer is yes.\n";
-			else cout << "The answer is no.\n";
+			if (characters[sizeIndex][player1Char] == "small") {
+				cout << "The answer is yes.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[sizeIndex][i] != "small") {
+						player1arr[i] = false;
+					}
+				}
+			}
+			else {
+				cout << "The answer is no.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[sizeIndex][i] == "small") {
+						player1arr[i] = false;
+					}
+				}
+			}
 		}
 		else if (lowerCase(question) == "medium") {
-			if (CharSize[player1Char] == "medium") cout << "The answer is yes.\n";
-			else cout << "The answer is no.\n";
+			if (characters[sizeIndex][player1Char] == "medium") {
+				cout << "The answer is yes.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[sizeIndex][i] != "medium") {
+						player1arr[i] = false;
+					}
+				}
+			}
+			else {
+				cout << "The answer is no.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[sizeIndex][i] == "medium") {
+						player1arr[i] = false;
+					}
+				}
+			}
 		}
 		else if (lowerCase(question) == "big") {
-			if (CharSize[player1Char] == "big") cout << "The answer is yes.\n";
-			else cout << "The answer is no.\n";
+			if (characters[sizeIndex][player1Char] == "big") {
+				cout << "The answer is yes.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[sizeIndex][i] != "big") {
+						player1arr[i] = false;
+					}
+				}
+			}
+			else {
+				cout << "The answer is no.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[sizeIndex][i] == "big") {
+						player1arr[i] = false;
+					}
+				}
+			}
 		}
 
 		Sleep(1000);
-		goto game;
+		goto turn;
 
 	gender:
 		cout << "You guessed that the other player's character is " << question << ".\n";
 		if (lowerCase(question) == "male") {
-			if (Gender[player1Char] == "male") cout << "The answer is yes.\n";
-			else cout << "The answer is no.\n";
+			if (characters[genderIndex][player1Char] == "male") {
+				cout << "The answer is yes.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[genderIndex][i] != "male") {
+						player1arr[i] = false;
+					}
+				}
+			}
+			else {
+				cout << "The answer is no.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[genderIndex][i] == "male") {
+						player1arr[i] = false;
+					}
+				}
+			}
 		}
 		else if (lowerCase(question) == "female") {
-			if (Gender[player1Char] == "male") cout << "The answer is yes.\n";
-			else cout << "The answer is no.\n";
+			if (characters[genderIndex][player1Char] == "female") {
+				cout << "The answer is yes.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[genderIndex][i] != "female") {
+						player1arr[i] = false;
+					}
+				}
+			}
+			else {
+				cout << "The answer is no.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[genderIndex][i] == "female") {
+						player1arr[i] = false;
+					}
+				}
+			}
 		}
 
-		Sleep(1000);
-		goto game;
+		Sleep(1500);
+		goto turn;
 
 	age:
 		cout << "You guessed that the other player's character is " << question << ".\n";
 		if (lowerCase(question) == "young") {
-			if (Age[player1Char] == "young") cout << "The answer is yes.\n";
-			else cout << "The answer is no.\n";
+			if (characters[ageIndex][player1Char] == "young") {
+				cout << "The answer is yes.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[ageIndex][i] != "young") {
+						player1arr[i] = false;
+					}
+				}
+			}
+			else {
+				cout << "The answer is no.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[ageIndex][i] == "young") {
+						player1arr[i] = false;
+					}
+				}
+			}
 		}
 		else if (lowerCase(question) == "middle") {
-			if (Age[player1Char] == "middle") cout << "The answer is yes.\n";
-			else cout << "The answer is no.\n";
+			if (characters[ageIndex][player1Char] == "middle") {
+				cout << "The answer is yes.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[ageIndex][i] != "middle") {
+						player1arr[i] = false;
+					}
+				}
+			}
+			else {
+				cout << "The answer is no.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[ageIndex][i] == "middle") {
+						player1arr[i] = false;
+					}
+				}
+			}
 		}
 		else if (lowerCase(question) == "old") {
-			if (Age[player1Char] == "old") cout << "The answer is yes.\n";
-			else cout << "The answer is no.\n";
+			if (characters[ageIndex][player1Char] == "old") {
+				cout << "The answer is yes.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[ageIndex][i] != "old") {
+						player1arr[i] = false;
+					}
+				}
+			}
+			else {
+				cout << "The answer is no.\n";
+
+				for (int i = 0; i < player1arr.size(); i++) {
+					if (characters[ageIndex][i] == "old") {
+						player1arr[i] = false;
+					}
+				}
+			}
 		}
 
-		Sleep(1000);
-		goto game;
+		Sleep(1500);
+		goto turn;
 
 	name:
+		while (nameGuess == "") {
+			cursorPos.Y = 3;
+			SetConsoleCursorPosition(hOut, cursorPos);
+			getline(cin, nameGuess, '\n');
+		}
+
 		cout << "You guessed that the other player's character is " << nameGuess << ".\n";
 		nameGuess = lowerCase(nameGuess);
 
@@ -521,15 +808,15 @@ begin:
 		}
 
 
-		if (playerTurn == 1) {
-			if (guess == player2Char) {
+		if (player1Turn) {
+			if (guess == player1Char) {
 				cout << "\nYour guess was correct!" << endl << "\nYou win!";
 			}
 			else {
 				cout << "\nYour guess was incorrect!" << endl << "\nYou lose!";
 			}
 		}
-		else if (playerTurn == 2) {
+		else {
 			if (guess == player1Char) {
 				cout << "\nYour guess was correct!" << endl << "\nYou win!";
 			}
@@ -545,15 +832,14 @@ begin:
 
 
 	restart:
-		system("CLS");
-
 		cursorPos.Y = 18;
 		SetConsoleCursorPosition(hOut, cursorPos);
+		fontSize(30);
 
 		centreString("Would you like to restart?\n");
 		centreString("Type \"Yes\" to restart game, \"No\" to go back to options, or \"Exit\" to exit the game.\n");
 		centreString("\b\b\b\b");
-		getline(cin, restart);
+		getline(cin, restart, '\n');
 
 		if (restart == "yes") {
 			system("CLS");
@@ -567,6 +853,14 @@ begin:
 			system("CLS");
 			endGame = true;
 			goto begin;
+		}
+		else if (restart == "") {
+			goto restart;
+		}
+		else {
+			centreString("Please use a valid input.");
+			Sleep(1000);
+			goto restart;
 		}
 	}
 
