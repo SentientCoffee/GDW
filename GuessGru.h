@@ -7,6 +7,7 @@
 #include "Random.h"
 #include "Sound.h"
 
+#include <array>
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
