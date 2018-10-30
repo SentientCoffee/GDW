@@ -1,8 +1,13 @@
+//The header so other cpp files call the header opposed to another cpp
 #include "Characters.h"
 
+//Void draw is what the program will call from in order to print the characters
 void drawCharacter(int character) {
+	//Switch statement used in main code
 	switch (character) {
+		//Depending on cases the character output will be different the remainder is more so just the actual output of the character.
 	case 0:
+		//Cases are related to the characters place on the list in the main .cpp
 		std::cout << "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMNmhyooo++yhmMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM" << std::endl
 			<< "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMNdhs+osyyhhhhyo/:/smMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM" << std::endl
 			<< "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMdssso+++++////+oyhhs:-+NMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM" << std::endl
@@ -59,6 +64,7 @@ void drawCharacter(int character) {
 
 		break;
 	case 1:
+		//cout basic output just formatted and made for easy output (all one cout)
 		std::cout << "		                                                                                                                    ` ````````                                                                              \n"
 			<< "                                                                                                                       ``./+oossso+++/:.`  `                                                                            \n"
 			<< "                                                                                                                 ```.:+oydmmmNmmmNNNNmmdyo/.`                                                                           \n"
@@ -110,6 +116,7 @@ void drawCharacter(int character) {
 			<< "     ```..-::/++ooyyyhdNNNNNNNNNNNNNNNNNNmmmNNNNNNNm+//o+/++++ymmmmmmmmy+++oooooooosoossyyyo++//::-------------------------------:::::://+osyhhdddmdyooooooooooo++ossshmNNmmmNmmmdsooo+oosyyyyssymNNmdysyyyhmNNNNNNNNNNN\n"
 			<< "-:/+osyhddmmNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNd+/+++ooshmmmmmmmdy/o+++oooooooooosdmNmmmmddyo+++//::::---------------::::://++++ooosshmmmmmmmmmdsoooooosoooooossyshmmmmmmmmmmmso+syhhyysysyhmNdhyysssymNNNNNNNNNNNN\n"
 			<< "mmmmmmmmmmmNNNNNNNNNNNNNNNNNNNNNNNMMMMNNNNNNNNNNNNNNNmo/+/ohdmmmmmmmmy+o+++oosoooooooydmmmmmmmmhooooooossoooo++osyyyyyyyhyosoo+osoooooooooydmmmmmmNmmdysooooosooo+osssoshmmmmmmmmmmdssyyyyysssydmmdyssyysydNNNNNNNNNNNNN\n";
+		//Break statements at the end of all characters to ensure only 1 character is outputted
 		break;
 	case 2:
 		std::cout << "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMmmdhyyyyysssssyyhMMMMMMMMMMMMMMMMMMmyyssssssssssssssyymMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM" << std::endl
