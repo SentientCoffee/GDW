@@ -1,41 +1,54 @@
+//Includes the header which has all other required includes (cleans up the look)
 #include "GuessGru.h"
+//standard using namespace
 using namespace std;
 
+//
 const HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
 const HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
+//Simple messages/outputs the program gives title, ending, etc.
 COORD titleMsg;
 COORD endMsg;
 COORD cursorPos;
 
+//Input record, of what the user types
 INPUT_RECORD inputRecord;
 DWORD numRead;
 
+//Name index for characters to be stored
 const int nameIndex = 0,
+//Charcter traits stored as numbers to make AI (single player work, also easier to code than string)
 noseIndex = 1,
 hairIndex = 2,
 ageIndex = 3,
 sizeIndex = 4,
 genderIndex = 5;
 
+//Bool used for core gameplay mechanics
 static bool singlePlayer = false, player1Turn = false, endGame = false, elMacho = false;
 int loop, player1Char, player2Char, guess;
 
+//String for certain inputs that are letter based
 string userInput, charSelect, charName, question, nameGuess, restart;
 
-const array<array<string, 13>, 6> characters = {{
+//Multi-dimensional array to store all the characters and their traits in one place
+const array<array<string, 13>, 6> characters = { {
 	{ "El Macho", "Felonious Gru", "Dru Gru",  "Stuart the Minion", "Kevin the Minion", "Bob the Minion", "Dr. Nefario", "Margo Gru", "Agnes Gru", "Edith Gru", "Lucy Wilde", "Vector",   "Kyle the Dog" },
 	{ "average",  "pointy",        "pointy",   "none",              "none",             "none",           "pointy",      "average",   "average",   "average",   "average",    "pointy",   "none" },
 	{ "short",    "none",          "long",     "short",             "short",            "none",           "short",       "long",      "long",      "short",     "long",       "short",    "short" },
 	{ "middle",   "middle",        "middle",   "old",               "old",              "old",            "old",         "young",     "young",     "young",     "middle",     "middle",   "young" },
 	{ "big",      "big",           "big",      "small",             "medium",           "small",          "medium",      "medium",    "small",     "small",     "medium",     "medium",   "small" },
 	{ "male",     "male",          "male",     "male",              "male",             "male",           "male",        "female",    "female",    "female",    "female",     "male",     "male" }
-}};
+} };
 
+//bool to set all the characters values, that way yes and no questions are checked by the system (no cheating)
 static array<bool, 13> player1Guess = { true, true, true, true, true, true, true, true, true, true, true, true, true };
 static array<bool, 13> player2Guess = { true, true, true, true, true, true, true, true, true, true, true, true, true };
 
+//Main function
 int main() {
+	//title, end, and typing start location
 	titleMsg.X = 0;
 	titleMsg.Y = 1;
 
@@ -45,29 +58,32 @@ int main() {
 	cursorPos.X = 0;
 	cursorPos.Y = 5;
 
+	//seting the title to come out big
 	SetConsoleTitle("Guess GRU");
 	SetConsoleTextAttribute(hOut, 112);
-
+	//the console size
 	::SendMessage(::GetConsoleWindow(), WM_SYSKEYDOWN, VK_RETURN, 0x20000000);
-
+	//setting font for large output
 	fontSize(300);
 	SetConsoleCursorPosition(hOut, titleMsg);
 	centreString("Guess GRU");
 	SetConsoleCursorPosition(hOut, cursorPos);
-
+	//plays the music file defined in the other .cpp
 	playMusic();
-
+	//sleep and clear for formatting and output
 	Sleep(5650);
 	system("CLS");
 
+	//The main loop of the game
 begin:
 	while (!endGame) {
 	menu:
+		//Sets the basic gamemode, this will be changed soon
 		singlePlayer = false;
-
+		//re-scaling font size
 		fontSize(50);
 		SetConsoleTextAttribute(hOut, 112);
-
+		//formatting and more output
 		cursorPos.Y = 0;
 		SetConsoleCursorPosition(hOut, cursorPos);
 		centreString("Guess GRU\n");
@@ -83,6 +99,7 @@ begin:
 		cursorPos.Y = 8;
 		SetConsoleCursorPosition(hOut, cursorPos);
 
+		//these will take the input of string 
 		centreString("Options: (please type your choice)\n");
 		centreString("- Single Player\n");
 		centreString("- Two Player\n");
@@ -91,17 +108,17 @@ begin:
 		cursorPos.Y = 13;
 		SetConsoleCursorPosition(hOut, cursorPos);
 		centreString("\b\b\b");
-
+		//gets input and sets to lowercase for the check
 		getline(cin, userInput, '\n');
 		userInput = lowerCase(userInput);
-
+		//this is to amke sure proper input is given
 		while (userInput != "single player" && userInput != "two player" && userInput != "dlc" && userInput != "exit") {
 			centreString("Please use a valid input.");
 			Sleep(1000);
 			system("CLS");
 			goto menu;
 		}
-
+		//sets the game mode depending on singlePlayer being true or false
 		if (userInput == "single player") {
 			singlePlayer = true;
 			system("CLS");
@@ -111,7 +128,7 @@ begin:
 			system("CLS");
 			singlePlayer = false;
 			goto characterSelect;
-		}
+		} //else is to add the dlc which will then require the user to pick single or two player
 		else if (userInput == "dlc") {
 			if (!elMacho) {
 				system("CLS");
@@ -124,7 +141,8 @@ begin:
 
 				cin >> userInput;
 				userInput = lowerCase(userInput);
-
+				//if the user types yes to add dlc just some output and then the elMacho bool is set to true
+				//adding the character to the game
 				if (userInput == "yes") {
 					elMacho = true;
 					centreString("El Macho has been added to the game.\n");
@@ -134,6 +152,7 @@ begin:
 					system("CLS");
 					goto menu;
 				}
+				//Else is to not add the character
 				else {
 					elMacho = false;
 					centreString("El Macho has not been added.");
@@ -142,7 +161,7 @@ begin:
 					system("CLS");
 					goto menu;
 				}
-			}
+			}//If the player already added the character we check that here
 			else {
 				system("CLS");
 
@@ -153,29 +172,30 @@ begin:
 				system("CLS");
 				goto menu;
 			}
-		}
+		}//this is used to exit the game and when the bool is true the program exits
 		else if (userInput == "exit") {
 			system("CLS");
 			endGame = true;
 			goto begin;
 		}
-
+		//setting the player's characters so they can choose
 	characterSelect:
 		player1Char = 100;
 		player2Char = 100;
 		player1Turn = false;
 		guess = 100;
-
+		//Setting the basic loop for guessing gameplay
 		for (int i = 0; i < player1Guess.size(); i++) player1Guess[i] = true;
 		for (int i = 0; i < player2Guess.size(); i++) player2Guess[i] = true;
-
+		//an else setting the value to 1 or two depending on the case
 		loop = singlePlayer ? 1 : 2;
 
+		//If statement for adding random number generator for single player
 		if (singlePlayer) {
 			if (elMacho) player2Char = randomNum(0, characters[nameIndex].size() - 1);
 			else player2Char = randomNum(1, characters[nameIndex].size() - 1);
 		}
-
+		//If statement setting up the two player (AI)
 		for (int i = 0; i < loop; i++) {
 			fontSize(30);
 			system("CLS");
@@ -184,13 +204,15 @@ begin:
 				if (i == 0) cout << "Player 1, p";
 				else cout << "Player 2, p";
 			}
-
+			//asking for user input to set the character
 			cout << "lease choose your character:\n\n";
 
+			//checks to see if the dlc was added, if it was it will outputted
 			if (elMacho) {
 				cout << "[`] El Macho\n";
 			}
 
+			//The list of characters players can pick from 
 			cout << "[1] Felonious Gru\n"
 				<< "[2] Dru Gru\n"
 				<< "[3] Stuart the Minion\n"
@@ -204,18 +226,24 @@ begin:
 				<< "[-] Vector\n"
 				<< "[=] Kyle the Dog\n\n";
 
+			//Output for clarification 
 			cout << "Please select your character using the number row.\n";
 			cout << "Or press M to go back to the main menu.";
 
+			//reading the input
 			ReadConsoleInput(hIn, &inputRecord, 1, &numRead);
 			switch (inputRecord.EventType) {
+				//cases to preform certain actions
 			case KEY_EVENT:
+				//basic switch using user input from a certain part
 				switch (inputRecord.Event.KeyEvent.uChar.AsciiChar) {
+					//to go back to the main menu
 				case 'm':
 					system("CLS");
 					goto menu;
 					break;
-
+					//All other cases just set the player 1 or 2 (AI) character
+					//breaks so it doesn't run through all
 				case '`':
 					if (elMacho) {
 						if (i == 0) player1Char = 0;
@@ -274,25 +302,29 @@ begin:
 					break;
 				}
 
+				//if statement for gameplay
 				if ((i == 0 && player1Char == 100) || (i == 1 && player2Char == 100)) {
 					i--;
 					continue;
 				}
 
-
+				//setting the pick character in the multi-dimensional array (will help with output and chart)
 				else {
 					if (i == 0) charName = characters[nameIndex][player1Char];
 					else charName = characters[nameIndex][player2Char];
 				}
 
+				//basic starting point for typing
 				cursorPos.Y = 18;
 				SetConsoleCursorPosition(hOut, cursorPos);
 
+				//double checking user input
 				cout << charName << "\n";
 				cout << "Is this the character you'd like to choose? (Type \"Yes\" or \"No\"): ";
 				cin >> charSelect;
 				charSelect = lowerCase(charSelect);
 
+				//input checking for yes or no, with outcomes
 				if (charSelect == "yes") {
 					system("CLS");
 					fontSize(30);
@@ -306,6 +338,7 @@ begin:
 					i--;
 					continue;
 				}
+				//invalid input check
 				else {
 					cout << "Please use a valid input.";
 					Sleep(1000);
@@ -314,15 +347,18 @@ begin:
 					continue;
 				}
 
-
+				//this is the character output part with art
 				cout << "Would you like to view your character? (Type \"Yes\" or \"No\"): ";
 				cin >> userInput;
 				userInput = lowerCase(userInput);
 
+				//if the user types yes it will output the character
 				if (userInput == "yes") {
 					system("CLS");
 
+					//reducing the font size so the characters are actually visible
 					fontSize(10);
+					//prints the player's character
 					if (i == 0) drawCharacter(player1Char);
 					else drawCharacter(player2Char);
 					cout << endl;
@@ -330,9 +366,11 @@ begin:
 					Sleep(4000);
 					system("CLS");
 				}
+				//if the user types no it will not show the image
 				else if (userInput == "no") {
 					system("CLS");
 				}
+				//checks the input
 				else {
 					cout << "Please type \"Yes\" or \"No.\"";
 					Sleep(1000);
@@ -340,15 +378,17 @@ begin:
 				}
 			}
 		}
-
+		//goto statement for the turn code loop
 		goto turn;
 
+		//turn loop for core gameplay
 	turn:
 		system("CLS");
 		player1Turn = !player1Turn;
 
 		if (!singlePlayer) {
 			fontSize(50);
+			//will just tell which player should be typing 
 			cout << "\n\n\nPlease pass control to Player ";
 			if (player1Turn) cout << "1";
 			else cout << "2";
@@ -357,13 +397,15 @@ begin:
 			Sleep(2000);
 			system("pause");
 		}
-
+		//going to game loop
 		goto game;
 
+		//game 
 	game:
 		system("CLS");
 		fontSize(30);
 
+		//this will output the remaining characters the player can guess from
 		cout << "Available characters:\n\n";
 		cout << setw(25) << left << "NAME";
 		cout << setw(15) << left << "NOSE"
@@ -371,7 +413,7 @@ begin:
 			<< setw(15) << left << "SIZE"
 			<< setw(15) << left << "GENDER"
 			<< setw(15) << left << "AGE" << endl;
-
+		//simple formatting
 		cout << setw(25) << left << "--------------------";
 		cout << setw(15) << left << "---------"
 			<< setw(15) << left << "---------"
@@ -379,6 +421,7 @@ begin:
 			<< setw(15) << left << "---------"
 			<< setw(15) << left << "---------" << endl;
 
+		//this is the part that outputs the chart, that updates as the game goes along
 		for (unsigned int i = 0; i < characters[0].size(); i++) {
 			if (i == 0) {
 				if (elMacho) {
@@ -427,14 +470,16 @@ begin:
 				}
 			}
 		}
-
+		//ending the output and statements with some formatting
 		cout << endl << "====================================================================================================\n\n";
 
+		//setting turns again
 		if (!singlePlayer) {
 			if (player1Turn) cout << "It is now Player 1's turn.\n";
 			else cout << "It is now Player 2's turn.\n";
 		}
 
+		//this is the basic questions that a player can pick from
 		cout << "Please type what you'd like to ask.\n\n"
 			<< "Acceptable Commands:\n"
 			<< "- Nose\n"
@@ -445,10 +490,12 @@ begin:
 			<< "- Name (if you guess this wrong, you lose)\n\n"
 			<< "Command: ";
 
+		//takes the input
 		cin >> question;
 		question = lowerCase(question);
 		system("CLS");
 
+		//if statements that will check input and go to the respected area
 		if (question == "nose") goto nose;
 		else if (question == "hair") goto hair;
 		else if (question == "size") goto size;
@@ -456,6 +503,7 @@ begin:
 		else if (question == "age") goto age;
 		else if (question == "name") goto name;
 		else {
+			//invalid input check
 			cout << "Please use a valid input.";
 			Sleep(1000);
 			system("CLS");
@@ -465,28 +513,33 @@ begin:
 	computerGuess:
 		system("CLS");
 		fontSize(30);
-		
+
+		//computer guessing part
 		cout << "\n\n"
 			<< "The computer is guessing...\n\n";
 
+		//just the question asking part
 		while (true) {
-			if(elMacho) guess = randomNum(0, player2Guess.size() - 1);
+			//if statements for gamemodes
+			if (elMacho) guess = randomNum(0, player2Guess.size() - 1);
 			else guess = randomNum(1, player2Guess.size() - 1);
-
+			//player 2 guess
 			if (player2Guess[guess]) {
 				nameGuess = characters[nameIndex][guess];
 				break;
 			}
 		}
-
+		//when the computer guesses your character
 		cout << "The computer has guessed that your character is " << nameGuess << ".\n";
 
-		if(player1Char == guess) {
+		//if the computer guesses your character
+		if (player1Char == guess) {
 			cout << "The computer has guessed your character!\n"
 				<< "\nThe computer's character was " << nameGuess << "."
 				<< "\nYou lose!";
 			Sleep(2000);
 
+			//changing font size
 			fontSize(10);
 			drawCharacter(player1Char);
 			cout << endl;
@@ -495,6 +548,7 @@ begin:
 			system("CLS");
 			goto restart;
 		}
+		//checking if the computer has guessed your character and saying that it has not
 		else {
 			player2Guess[guess] = false;
 			nameGuess = "";
@@ -506,7 +560,9 @@ begin:
 			Sleep(4000);
 			goto game;
 		}
-		
+
+		//the repected command with the goto statements from earlier
+		//each has a narrowed down pre-set questions that a user may ask
 	nose:
 		cout << "Acceptable Commands:\n"
 			<< "- None\n"
@@ -519,6 +575,8 @@ begin:
 		question = lowerCase(question);
 		cout << endl;
 
+		//if statements to check the outcomes depending on which characters have been set and which question was asked
+		//Next lines of code are all preforming this similar function
 		if (question == "average") {
 			cout << "You guessed that the other player's character has an " << question << " nose.\n";
 			if (player1Turn) {
@@ -633,10 +691,11 @@ begin:
 		}
 
 		Sleep(3000);
-		
+
 		if (!singlePlayer) goto turn;
 		else goto computerGuess;
-
+		//now the goto for the hair and its narrowed down question
+		//following if statements preform a similar task as the previous ones above
 	hair:
 		cout << "Acceptable Commands:\n"
 			<< "- Long\n"
@@ -764,7 +823,7 @@ begin:
 
 		if (!singlePlayer) goto turn;
 		else goto computerGuess;
-
+		//size goto similar to the previous goto statements for the user input question selecting
 	size:
 		cout << "Acceptable Commands:\n"
 			<< "- Big\n"
@@ -892,7 +951,7 @@ begin:
 
 		if (!singlePlayer) goto turn;
 		else goto computerGuess;
-
+		//Goto for the gender possible inputs, and the following if statements 
 	gender:
 		cout << "Acceptable Commands: (Yes, we assumed. Deal with it.)\n"
 			<< "- Male\n"
@@ -985,7 +1044,7 @@ begin:
 
 		if (!singlePlayer) goto turn;
 		else goto computerGuess;
-
+		//age goto preforms like the other goto statements before (in regards to question checking and outcome)
 	age:
 		cout << "Acceptable Commands:\n"
 			<< "- Young\n"
@@ -1113,19 +1172,23 @@ begin:
 
 		if (!singlePlayer) goto turn;
 		else goto computerGuess;
-
+		//name goto for guessing the name of the character
+		//preforms differently than the previous few goto statements
 	name:
 		system("CLS");
-
+		//a do while loop
 		do {
+			//ask the user to type the name of the character
 			if (singlePlayer) cout << "Player 1, ";
 			else cout << "Player 2, ";
 			cout << "please select the character's name.\n"
+				//incase the player/user wants to return
 				<< "Or type \"Back\" to go back to the character selection.";
 
 			cout << "Available characters:\n";
 			cout << setw(25) << left << "--------------------" << endl;
-
+			//if statement to check which characters are left
+			//uses for loop to run through and check
 			for (unsigned int i = 0; i < characters[0].size(); i++) {
 				if (i == 0) {
 					if (elMacho) {
@@ -1146,11 +1209,11 @@ begin:
 					}
 				}
 			}
-			
+			//this will take the input
 			cout << "\nGuess:\n";
 			getline(cin, nameGuess, '\n');
 			nameGuess = lowerCase(nameGuess);
-
+			//will check each character to see if the input matches 
 			if (nameGuess != "el macho" && nameGuess != "felonious gru" && nameGuess != "dru gru" && nameGuess != "stuart the minion"
 				&& nameGuess != "kevin the minion" && nameGuess != "bob the minion" && nameGuess != "dr. nefario"
 				&& nameGuess != "margo gru" && nameGuess != "agnes gru" && nameGuess != "edith gru"
@@ -1161,10 +1224,11 @@ begin:
 				system("CLS");
 				goto name;
 			}
+			//the do while ending
 		} while (nameGuess == "");
-
+		//to return back if the user did not want to guess the name
 		if (nameGuess == "back") goto game;
-
+		//setting the user input of character name to numbers for easy system checking
 		if (nameGuess == "el macho")                 guess = 0;
 		else if (nameGuess == "felonious gru")       guess = 1;
 		else if (nameGuess == "dru gru")             guess = 2;
@@ -1179,9 +1243,11 @@ begin:
 		else if (nameGuess == "vector")              guess = 11;
 		else if (nameGuess == "kyle the dog")        guess = 12;
 
+		//sinple output
 		cout << endl;
 		cout << "You guessed that the other player's character is " << characters[nameIndex][guess] << ".\n";
 
+		//if the player guesses correctly (player 1)
 		if (player1Turn) {
 			if (guess == player2Char) {
 				cout << "\nYour guess was correct!\n";
@@ -1191,10 +1257,11 @@ begin:
 				fontSize(10);
 				drawCharacter(player2Char);
 			}
+			//if the player guesses incorrectly and the proper outcome
 			else {
 				nameGuess = characters[nameIndex][player2Char];
 
-				cout << "\nYour guess was incorrect!" 
+				cout << "\nYour guess was incorrect!"
 					<< "\nThe Player 2's character was " << nameGuess << "."
 					<< "\nYou lose!";
 				Sleep(2000);
@@ -1204,6 +1271,7 @@ begin:
 				cout << endl;
 			}
 		}
+		//checks to see if player 2 wins
 		else {
 			if (guess == player1Char) {
 				cout << "\nYour guess was correct!\n";
@@ -1214,6 +1282,7 @@ begin:
 				drawCharacter(player1Char);
 				cout << endl;
 			}
+			//if player guesses wrong
 			else {
 				nameGuess = characters[nameIndex][player1Char];
 
@@ -1233,6 +1302,7 @@ begin:
 
 		goto restart;
 
+		//at the end of game/round this will check if the user wants to play again or restart
 	restart:
 		cursorPos.Y = 15;
 		SetConsoleCursorPosition(hOut, cursorPos);
@@ -1246,6 +1316,7 @@ begin:
 		centreString("\b\b\b\b");
 		getline(cin, restart, '\n');
 
+		//checking inputs and preforming the respected actions
 		if (restart == "yes") {
 			system("CLS");
 			goto characterSelect;
@@ -1269,6 +1340,8 @@ begin:
 		}
 	}
 
+	//if the user exits the game
+	//and what will output/happen
 	SetConsoleCursorPosition(hOut, endMsg);
 	cout << "Exiting game..." << endl;
 	Sleep(1000);
