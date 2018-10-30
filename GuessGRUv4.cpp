@@ -4,7 +4,6 @@ using namespace std;
 const HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
 const HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
-COORD bufferSize;
 COORD titleMsg;
 COORD endMsg;
 COORD cursorPos;
@@ -37,9 +36,6 @@ static array<bool, 13> player1Guess = { true, true, true, true, true, true, true
 static array<bool, 13> player2Guess = { true, true, true, true, true, true, true, true, true, true, true, true, true };
 
 int main() {
-	bufferSize.X = 100;
-	bufferSize.Y = 100;
-
 	titleMsg.X = 0;
 	titleMsg.Y = 1;
 
@@ -49,15 +45,14 @@ int main() {
 	cursorPos.X = 0;
 	cursorPos.Y = 5;
 
-	SetConsoleTitle("Guess Gru");
-	SetConsoleScreenBufferSize(hOut, bufferSize);
-	SetConsoleTextAttribute(hOut, 22);
+	SetConsoleTitle("Guess GRU");
+	SetConsoleTextAttribute(hOut, 112);
 
 	::SendMessage(::GetConsoleWindow(), WM_SYSKEYDOWN, VK_RETURN, 0x20000000);
 
 	fontSize(300);
 	SetConsoleCursorPosition(hOut, titleMsg);
-	centreString("Guess Gru");
+	centreString("Guess GRU");
 	SetConsoleCursorPosition(hOut, cursorPos);
 
 	playMusic();
@@ -71,18 +66,18 @@ begin:
 		singlePlayer = false;
 
 		fontSize(50);
-		SetConsoleTextAttribute(hOut, 22);
+		SetConsoleTextAttribute(hOut, 112);
 
 		cursorPos.Y = 0;
 		SetConsoleCursorPosition(hOut, cursorPos);
-		centreString("Guess Gru\n");
+		centreString("Guess GRU\n");
 		centreString("=================================================================");
 
 		cursorPos.Y = 21;
 		SetConsoleCursorPosition(hOut, cursorPos);
-		SetConsoleTextAttribute(hOut, 25);
+		SetConsoleTextAttribute(hOut, 127);
 		centreString("DLC?\n\n");
-		SetConsoleTextAttribute(hOut, 22);
+		SetConsoleTextAttribute(hOut, 112);
 
 		userInput = "";
 		cursorPos.Y = 8;
@@ -120,6 +115,7 @@ begin:
 		else if (userInput == "dlc") {
 			if (!elMacho) {
 				system("CLS");
+				cursorPos.Y = 8;
 				SetConsoleCursorPosition(hOut, cursorPos);
 
 				centreString("DLC character: El Macho\n");
@@ -170,12 +166,8 @@ begin:
 		player1Turn = false;
 		guess = 100;
 
-		for (int i = 0; i < player1Guess.size(); i++) {
-			player1Guess[i] = true;
-		}
-		for (int i = 0; i < player2Guess.size(); i++) {
-			player2Guess[i] = true;
-		}
+		for (int i = 0; i < player1Guess.size(); i++) player1Guess[i] = true;
+		for (int i = 0; i < player2Guess.size(); i++) player2Guess[i] = true;
 
 		loop = singlePlayer ? 1 : 2;
 
@@ -193,9 +185,7 @@ begin:
 				else cout << "Player 2, p";
 			}
 
-			cout << "lease choose your character:\n"
-				<< "(Please select your character using the number row)\n";
-
+			cout << "lease choose your character:\n\n";
 
 			if (elMacho) {
 				cout << "[`] El Macho\n";
@@ -214,15 +204,14 @@ begin:
 				<< "[-] Vector\n"
 				<< "[=] Kyle the Dog\n\n";
 
-			cout << "Press M to go back to the main menu.";
+			cout << "Please select your character using the number row.\n";
+			cout << "Or press M to go back to the main menu.";
 
 			ReadConsoleInput(hIn, &inputRecord, 1, &numRead);
-
 			switch (inputRecord.EventType) {
 			case KEY_EVENT:
 				switch (inputRecord.Event.KeyEvent.uChar.AsciiChar) {
 				case 'm':
-					endGame = true;
 					system("CLS");
 					goto menu;
 					break;
@@ -300,7 +289,7 @@ begin:
 				SetConsoleCursorPosition(hOut, cursorPos);
 
 				cout << charName << "\n";
-				cout << "Is this the character you'd like to choose? ";
+				cout << "Is this the character you'd like to choose? (Type \"Yes\" or \"No\"): ";
 				cin >> charSelect;
 				charSelect = lowerCase(charSelect);
 
@@ -336,6 +325,7 @@ begin:
 					fontSize(10);
 					if (i == 0) drawCharacter(player1Char);
 					else drawCharacter(player2Char);
+					cout << endl;
 
 					Sleep(4000);
 					system("CLS");
@@ -373,7 +363,7 @@ begin:
 	game:
 		system("CLS");
 		fontSize(30);
-		
+
 		cout << "Available characters:\n\n";
 		cout << setw(25) << left << "NAME";
 		cout << setw(15) << left << "NOSE"
@@ -440,9 +430,11 @@ begin:
 
 		cout << endl << "====================================================================================================\n\n";
 
-		if(player1Turn)	cout << "It is now Player 1's turn.\n";
-		else cout << "It is now Player 2's turn.\n";
-	
+		if (!singlePlayer) {
+			if (player1Turn) cout << "It is now Player 1's turn.\n";
+			else cout << "It is now Player 2's turn.\n";
+		}
+
 		cout << "Please type what you'd like to ask.\n\n"
 			<< "Acceptable Commands:\n"
 			<< "- Nose\n"
@@ -450,80 +442,19 @@ begin:
 			<< "- Size\n"
 			<< "- Gender\n"
 			<< "- Age\n"
-			<< "- Name (if you guess this wrong you lose)\n\n";
+			<< "- Name (if you guess this wrong, you lose)\n\n"
+			<< "Command: ";
 
 		cin >> question;
 		question = lowerCase(question);
 		system("CLS");
 
-		if (question == "nose") {
-			cout << "Acceptable Commands:\n"
-				<< "- None\n"
-				<< "- Average\n"
-				<< "- Pointy\n"
-				<< endl;
-
-			cin >> question;
-			question = lowerCase(question);
-			cout << endl;
-
-			goto nose;
-		}
-		else if (question == "hair") {
-			cout << "Acceptable Commands:\n"
-				<< "- Long\n"
-				<< "- Short\n"
-				<< "- None\n"
-				<< endl;
-
-			cin >> question;
-			question = lowerCase(question);
-			cout << endl;
-
-			goto hair;
-		}
-		else if (question == "size") {
-			cout << "Acceptable Commands:\n"
-				<< "- Big\n"
-				<< "- Medium\n"
-				<< "- Small\n"
-				<< endl;
-
-			cin >> question;
-			question = lowerCase(question);
-			cout << endl;
-
-			goto size;
-		}
-		else if (question == "gender") {
-			cout << "Acceptable Commands: (Yes, we assumed. Deal with it.)\n"
-				<< "- Male\n"
-				<< "- Female\n"
-				<< endl;
-
-			cin >> question;
-			question = lowerCase(question);
-			cout << endl;
-
-			goto gender;
-		}
-		else if (question == "age") {
-			cout << "Acceptable Commands:\n"
-				<< "- Young\n"
-				<< "- Middle\n"
-				<< "- Old\n"
-				<< endl;
-
-			cin >> question;
-			question = lowerCase(question);
-			cout << endl;
-
-			goto age;
-		}
-		else if (question == "name") {
-			cout << endl;
-			goto name;
-		}
+		if (question == "nose") goto nose;
+		else if (question == "hair") goto hair;
+		else if (question == "size") goto size;
+		else if (question == "gender") goto gender;
+		else if (question == "age") goto age;
+		else if (question == "name") goto name;
 		else {
 			cout << "Please use a valid input.";
 			Sleep(1000);
@@ -551,10 +482,17 @@ begin:
 		cout << "The computer has guessed that your character is " << nameGuess << ".\n";
 
 		if(player1Char == guess) {
-			cout << "The computer has guessed your character!\n\n"
-				<< "You lose!";
+			cout << "The computer has guessed your character!\n"
+				<< "\nThe computer's character was " << nameGuess << "."
+				<< "\nYou lose!";
+			Sleep(2000);
+
+			fontSize(10);
+			drawCharacter(player1Char);
+			cout << endl;
 
 			Sleep(4000);
+			system("CLS");
 			goto restart;
 		}
 		else {
@@ -570,7 +508,18 @@ begin:
 		}
 		
 	nose:
-		if (lowerCase(question) == "average") {
+		cout << "Acceptable Commands:\n"
+			<< "- None\n"
+			<< "- Average\n"
+			<< "- Pointy\n\n"
+			<< "Or type \"Back\" to go back to the character selection.\n"
+			<< "Command: ";
+
+		cin >> question;
+		question = lowerCase(question);
+		cout << endl;
+
+		if (question == "average") {
 			cout << "You guessed that the other player's character has an " << question << " nose.\n";
 			if (player1Turn) {
 				if (characters[noseIndex][player2Char] == "average") {
@@ -605,7 +554,7 @@ begin:
 				}
 			}
 		}
-		else if (lowerCase(question) == "pointy") {
+		else if (question == "pointy") {
 			cout << "You guessed that the other player's character has a " << question << " nose.\n";
 			if (player1Turn) {
 				if (characters[noseIndex][player2Char] == "pointy") {
@@ -640,7 +589,7 @@ begin:
 				}
 			}
 		}
-		else if (lowerCase(question) == "none") {
+		else if (question == "none") {
 			cout << "You guessed that the other player's character has no nose.\n";
 			if (player1Turn) {
 				if (characters[noseIndex][player2Char] == "none") {
@@ -675,6 +624,13 @@ begin:
 				}
 			}
 		}
+		else if (question == "back") goto game;
+		else {
+			cout << "Please enter an acceptable command.";
+			Sleep(1000);
+			system("CLS");
+			goto nose;
+		}
 
 		Sleep(3000);
 		
@@ -682,8 +638,19 @@ begin:
 		else goto computerGuess;
 
 	hair:
+		cout << "Acceptable Commands:\n"
+			<< "- Long\n"
+			<< "- Short\n"
+			<< "- None\n\n"
+			<< "Or type \"Back\" to go back to the character selection.\n"
+			<< "Command: ";
+
+		cin >> question;
+		question = lowerCase(question);
+		cout << endl;
+
 		cout << "You guessed that the other player's character has " << question << " hair.\n";
-		if (lowerCase(question) == "long") {
+		if (question == "long") {
 			if (player1Turn) {
 				if (characters[hairIndex][player2Char] == "long") {
 					cout << "The answer is yes.\n";
@@ -717,7 +684,7 @@ begin:
 				}
 			}
 		}
-		else if (lowerCase(question) == "short") {
+		else if (question == "short") {
 			if (player1Turn) {
 				if (characters[hairIndex][player2Char] == "short") {
 					cout << "The answer is yes.\n";
@@ -751,7 +718,7 @@ begin:
 				}
 			}
 		}
-		else if (lowerCase(question) == "none") {
+		else if (question == "none") {
 			if (player1Turn) {
 				if (characters[hairIndex][player2Char] == "none") {
 					cout << "The answer is yes.\n";
@@ -785,6 +752,13 @@ begin:
 				}
 			}
 		}
+		else if (question == "back") goto game;
+		else {
+			cout << "Please enter an acceptable command.";
+			Sleep(1000);
+			system("CLS");
+			goto hair;
+		}
 
 		Sleep(3000);
 
@@ -792,8 +766,19 @@ begin:
 		else goto computerGuess;
 
 	size:
+		cout << "Acceptable Commands:\n"
+			<< "- Big\n"
+			<< "- Medium\n"
+			<< "- Small\n\n"
+			<< "Or type \"Back\" to go back to the character selection.\n"
+			<< "Command: ";
+
+		cin >> question;
+		question = lowerCase(question);
+		cout << endl;
+
 		cout << "You guessed that the other player's character is " << question << ".\n";
-		if (lowerCase(question) == "small") {
+		if (question == "small") {
 			if (player1Turn) {
 				if (characters[sizeIndex][player2Char] == "small") {
 					cout << "The answer is yes.\n";
@@ -827,7 +812,7 @@ begin:
 				}
 			}
 		}
-		else if (lowerCase(question) == "medium") {
+		else if (question == "medium") {
 			if (player1Turn) {
 				if (characters[sizeIndex][player2Char] == "medium") {
 					cout << "The answer is yes.\n";
@@ -861,7 +846,7 @@ begin:
 				}
 			}
 		}
-		else if (lowerCase(question) == "big") {
+		else if (question == "big") {
 			if (player1Turn) {
 				if (characters[sizeIndex][player2Char] == "big") {
 					cout << "The answer is yes.\n";
@@ -895,6 +880,13 @@ begin:
 				}
 			}
 		}
+		else if (question == "back") goto game;
+		else {
+			cout << "Please enter an acceptable command.";
+			Sleep(1000);
+			system("CLS");
+			goto size;
+		}
 
 		Sleep(3000);
 
@@ -902,8 +894,18 @@ begin:
 		else goto computerGuess;
 
 	gender:
+		cout << "Acceptable Commands: (Yes, we assumed. Deal with it.)\n"
+			<< "- Male\n"
+			<< "- Female\n\n"
+			<< "Or type \"Back\" to go back to the character selection.\n"
+			<< "Command: ";
+
+		cin >> question;
+		question = lowerCase(question);
+		cout << endl;
+
 		cout << "You guessed that the other player's character is " << question << ".\n";
-		if (lowerCase(question) == "male") {
+		if (question == "male") {
 			if (player1Turn) {
 				if (characters[genderIndex][player2Char] == "male") {
 					cout << "The answer is yes.\n";
@@ -937,7 +939,7 @@ begin:
 				}
 			}
 		}
-		else if (lowerCase(question) == "female") {
+		else if (question == "female") {
 			if (player1Turn) {
 				if (characters[genderIndex][player2Char] == "female") {
 					cout << "The answer is yes.\n";
@@ -971,6 +973,13 @@ begin:
 				}
 			}
 		}
+		else if (question == "back") goto game;
+		else {
+			cout << "Please enter an acceptable command.";
+			Sleep(1000);
+			system("CLS");
+			goto gender;
+		}
 
 		Sleep(3000);
 
@@ -978,8 +987,19 @@ begin:
 		else goto computerGuess;
 
 	age:
+		cout << "Acceptable Commands:\n"
+			<< "- Young\n"
+			<< "- Middle\n"
+			<< "- Old\n\n"
+			<< "Or type \"Back\" to go back to the character selection.\n"
+			<< "Command: ";
+
+		cin >> question;
+		question = lowerCase(question);
+		cout << endl;
+
 		cout << "You guessed that the other player's character is " << question << ".\n";
-		if (lowerCase(question) == "young") {
+		if (question == "young") {
 			if (player1Turn) {
 				if (characters[ageIndex][player2Char] == "young") {
 					cout << "The answer is yes.\n";
@@ -1013,7 +1033,7 @@ begin:
 				}
 			}
 		}
-		else if (lowerCase(question) == "middle") {
+		else if (question == "middle") {
 			if (player1Turn) {
 				if (characters[ageIndex][player2Char] == "middle") {
 					cout << "The answer is yes.\n";
@@ -1047,7 +1067,7 @@ begin:
 				}
 			}
 		}
-		else if (lowerCase(question) == "old") {
+		else if (question == "old") {
 			if (player1Turn) {
 				if (characters[ageIndex][player2Char] == "old") {
 					cout << "The answer is yes.\n";
@@ -1081,6 +1101,13 @@ begin:
 				}
 			}
 		}
+		else if (question == "back") goto game;
+		else {
+			cout << "Please enter an acceptable command.";
+			Sleep(1000);
+			system("CLS");
+			goto age;
+		}
 
 		Sleep(3000);
 
@@ -1093,10 +1120,11 @@ begin:
 		do {
 			if (singlePlayer) cout << "Player 1, ";
 			else cout << "Player 2, ";
-			cout << "please select the character's name.\n";
+			cout << "please select the character's name.\n"
+				<< "Or type \"Back\" to go back to the character selection.";
 
-			cout << "Available characters:\n\n";
-			cout << setw(25) << left << "--------------------";
+			cout << "Available characters:\n";
+			cout << setw(25) << left << "--------------------" << endl;
 
 			for (unsigned int i = 0; i < characters[0].size(); i++) {
 				if (i == 0) {
@@ -1119,21 +1147,23 @@ begin:
 				}
 			}
 			
-			cout << endl;
-
+			cout << "\nGuess:\n";
 			getline(cin, nameGuess, '\n');
+			nameGuess = lowerCase(nameGuess);
 
-			if (nameGuess == "") {
+			if (nameGuess != "el macho" && nameGuess != "felonious gru" && nameGuess != "dru gru" && nameGuess != "stuart the minion"
+				&& nameGuess != "kevin the minion" && nameGuess != "bob the minion" && nameGuess != "dr. nefario"
+				&& nameGuess != "margo gru" && nameGuess != "agnes gru" && nameGuess != "edith gru"
+				&& nameGuess != "lucy wilde" && nameGuess != "vector" && nameGuess != "kyle the dog" && nameGuess != "back") {
 				cout << "Please use a valid input.";
 
 				Sleep(1000);
 				system("CLS");
+				goto name;
 			}
 		} while (nameGuess == "");
 
-		cout << endl;
-		cout << "You guessed that the other player's character is " << nameGuess << ".\n";
-		nameGuess = lowerCase(nameGuess);
+		if (nameGuess == "back") goto game;
 
 		if (nameGuess == "el macho")                 guess = 0;
 		else if (nameGuess == "felonious gru")       guess = 1;
@@ -1149,21 +1179,59 @@ begin:
 		else if (nameGuess == "vector")              guess = 11;
 		else if (nameGuess == "kyle the dog")        guess = 12;
 
+		cout << endl;
+		cout << "You guessed that the other player's character is " << characters[nameIndex][guess] << ".\n";
 
 		if (player1Turn) {
-			if (guess == player2Char) cout << "\nYour guess was correct!" << endl << "\nYou win!";
-			else cout << "\nYour guess was incorrect!" << endl << "\nYou lose!";
+			if (guess == player2Char) {
+				cout << "\nYour guess was correct!\n";
+				cout << "\nYou win!";
+				Sleep(2000);
+
+				fontSize(10);
+				drawCharacter(player2Char);
+			}
+			else {
+				nameGuess = characters[nameIndex][player2Char];
+
+				cout << "\nYour guess was incorrect!" 
+					<< "\nThe Player 2's character was " << nameGuess << "."
+					<< "\nYou lose!";
+				Sleep(2000);
+
+				fontSize(10);
+				drawCharacter(player2Char);
+				cout << endl;
+			}
 		}
 		else {
-			if (guess == player1Char) cout << "\nYour guess was correct!" << endl << "\nYou win!";
-			else cout << "\nYour guess was incorrect!" << endl << "\nYou lose!";
+			if (guess == player1Char) {
+				cout << "\nYour guess was correct!\n";
+				cout << "\nYou win!";
+				Sleep(2000);
+
+				fontSize(10);
+				drawCharacter(player1Char);
+				cout << endl;
+			}
+			else {
+				nameGuess = characters[nameIndex][player1Char];
+
+				cout << "\nYour guess was incorrect!"
+					<< "\nThe Player 1's character was " << nameGuess << "."
+					<< "\nYou lose!";
+				Sleep(2000);
+
+				fontSize(10);
+				drawCharacter(player1Char);
+				cout << endl;
+			}
 		}
 
 		Sleep(3000);
 		system("CLS");
 
 		goto restart;
-
 
 	restart:
 		cursorPos.Y = 15;

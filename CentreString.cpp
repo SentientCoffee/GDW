@@ -7,8 +7,7 @@ void centreString(std::string inputString)
 	int length = inputString.length();
 	int position = static_cast<int>((ConsoleSize.X - length) / 2);
 
-	for (int i = 0; i < position; i++)
-	{
+	for (int i = 0; i < position; i++) {
 		std::cout << " ";
 	}
 

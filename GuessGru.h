@@ -9,7 +9,6 @@
 
 #include <array>
 #include <cstdlib>
-#include <ctime>
 #include <fstream>
 #include <iomanip>
 #include <stdlib.h>
